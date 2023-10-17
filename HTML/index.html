@@ -26,28 +26,27 @@ var map = L.map('map',{
   "maxZoom": 18,
 });
 
-var southWest = L.latLng(33.0041, 124.5894); // 남서쪽 경계 좌표
-var northEast = L.latLng(38.6124, 131.8345); // 북동쪽 경계 좌표
+var southWest = L.latLng(33.0041, 124.5894); 
+var northEast = L.latLng(38.6124, 131.8345);
 var bounds = L.latLngBounds(southWest, northEast);
 map.setMaxBounds(bounds);
   
  var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
  });
-  
+
+osmLayer.addTo(map);
+
  var vworldLayer =  L.tileLayer('https://xdworld.vworld.kr/2d/Base/service/{z}/{x}/{y}.png', {
      attribution: '&copy; <a href="http://www.vworld.kr/">vworld</a>  contributors'
  });
-
 
  var baseMaps = {
    "OpenStreetMap" : osmLayer,
    "V_World": vworldLayer
  }; 
 
- osmLayer.addTo(map);
 
-//  cadastral 생성
   var cadastral = L.tileLayer.wms("http://api.vworld.kr/req/wms", {
         "version": "1.3.0",
         "layers": "lp_pa_cbnd_bonbun,lp_pa_cbnd_bubun",
@@ -61,25 +60,33 @@ map.setMaxBounds(bounds);
         "domain": apiDomain
     }).addTo(map);
 
- var overlayMaps = {
-"cadastral": cadastral
-};
 
-L.control.layers(baseMaps, overlayMaps,{
-    collapsed: false 
-}).addTo(map)
    
 
-// 위치 가져오는 API
-navigator.geolocation.getCurrentPosition(function(position) {
-      var target = {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude
-      };
 
-      // 가져온 위치 정보를 사용하여 마커를 생성하고 맵에 추가
-      var marker = L.marker([target.latitude, target.longitude]).addTo(map).bindPopup("위도: "+ target.latitude+" 경도: "+target.longitude);
-    });
+var markerLayer = L.layerGroup().addTo(map);
+
+// 위치 가져오는 API
+navigator.geolocation.getCurrentPosition(function (position) {
+  var target = {
+    latitude: position.coords.latitude,
+    longitude: position.coords.longitude
+  };
+
+  
+  var userLocationMarker = L.marker([target.latitude, target.longitude]).bindPopup("위도: " + target.latitude + " 경도: " + target.longitude);
+  userLocationMarker.addTo(markerLayer)
+
+  var overlayMaps = {
+    "cadastral": cadastral,
+    "maker":markerLayer
+};
+
+
+L.control.layers(baseMaps, overlayMaps, {
+  collapsed: false
+}).addTo(map);
+});
 
 
 var options = { 
