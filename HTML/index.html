@@ -81,6 +81,9 @@ navigator.geolocation.getCurrentPosition(function (position) {
     "cadastral": cadastral,
     "maker":markerLayer
 };
+map.on('dblclick', function(e){
+    Locat
+})
 
 
 L.control.layers(baseMaps, overlayMaps, {
@@ -107,6 +110,7 @@ var options = {
 
 var measureControl = L.control.measure(options);
 measureControl.addTo(map);
+
 
 
 
