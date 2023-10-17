@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link rel="stylesheet" href="../CSS/style.css">
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>   
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="../JS/leaflet-measure.ko_KR.js"></script>   
 
     <title>LeafLet</title>
 </head>
@@ -13,17 +14,95 @@
 
     <div id="map"></div>
 
-    <script>
-    var hanRiverPos = [37.5118, 126.9745];
-    var map = L.map('map').setView(hanRiverPos, 12);
- 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+<script> 
+var apiKey = "D69F8AC4-ADF1-3BBE-A4EF-7C328987345D";
+var apiDomain = "http://127.0.0.1:5500/HTML/index.html";
+
+var map = L.map('map',{
+  "center" : [37.5759999, 126.890612],
+  "zoom" : 7,
+  "zoomControl": true,
+  "minZoom": 7,
+  "maxZoom": 18,
+});
+
+var southWest = L.latLng(33.0041, 124.5894); // 남서쪽 경계 좌표
+var northEast = L.latLng(38.6124, 131.8345); // 북동쪽 경계 좌표
+var bounds = L.latLngBounds(southWest, northEast);
+map.setMaxBounds(bounds);
+  
+ var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+ });
+  
+ var vworldLayer =  L.tileLayer('https://xdworld.vworld.kr/2d/Base/service/{z}/{x}/{y}.png', {
+     attribution: '&copy; <a href="http://www.vworld.kr/">vworld</a>  contributors'
+ });
+
+
+ var baseMaps = {
+   "OpenStreetMap" : osmLayer,
+   "V_World": vworldLayer
+ }; 
+
+ osmLayer.addTo(map);
+
+//  cadastral 생성
+  var cadastral = L.tileLayer.wms("http://api.vworld.kr/req/wms", {
+        "version": "1.3.0",
+        "layers": "lp_pa_cbnd_bonbun,lp_pa_cbnd_bubun",
+        "styles": "lp_pa_cbnd_bonbun,lp_pa_cbnd_bubun,lp_pa_cbnd_bonbun_line,lp_pa_cbnd_bubun_line",
+        "format": "image/png",
+        "transparent": true,
+        "opacity": 1.0,
+        "maxZoom": 22,
+        "maxNativeZoom": 19,
+        "key": apiKey,
+        "domain": apiDomain
     }).addTo(map);
- 
-    L.marker(hanRiverPos).addTo(map)
-    .bindPopup('여기는 한강입니다!')
-    .openPopup();
+
+ var overlayMaps = {
+"cadastral": cadastral
+};
+
+L.control.layers(baseMaps, overlayMaps,{
+    collapsed: false 
+}).addTo(map)
+   
+
+// 위치 가져오는 API
+navigator.geolocation.getCurrentPosition(function(position) {
+      var target = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude
+      };
+
+      // 가져온 위치 정보를 사용하여 마커를 생성하고 맵에 추가
+      var marker = L.marker([target.latitude, target.longitude]).addTo(map).bindPopup("위도: "+ target.latitude+" 경도: "+target.longitude);
+    });
+
+
+var options = { 
+  primaryLengthUnit: 'meters',
+  secondaryLengthUnit: 'kilometers',
+  primaryAreaUnit: 'sqmeters',
+  secondaryAreaUnit: 'sqpyung',
+  activeColor: 'rgb(44, 72, 124)',
+  completedColor: 'rgb(44, 72, 124)',
+  units: {
+  sqpyung: {
+    factor: 0.3025, 
+    display: '평',
+    decimals: 2 
+  }
+}
+};
+
+var measureControl = L.control.measure(options);
+measureControl.addTo(map);
+
+
+
     </script>
 </body>
 </html>
