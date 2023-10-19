@@ -24,6 +24,7 @@ var map = L.map('map',{
   "zoomControl": true,
   "minZoom": 7,
   "maxZoom": 18,
+  "doubleClickZoom": false
 });
 
 var southWest = L.latLng(33.0041, 124.5894); 
@@ -81,16 +82,18 @@ navigator.geolocation.getCurrentPosition(function (position) {
     "cadastral": cadastral,
     "maker":markerLayer
 };
+
+// 더블클릭시 현재 내 위치로 확대 이벤트
 map.on('dblclick', function(e){
-    Locat
+  map.setView([target.latitude, target.longitude],18)
 })
+
 
 
 L.control.layers(baseMaps, overlayMaps, {
   collapsed: false
 }).addTo(map);
 });
-
 
 var options = { 
   primaryLengthUnit: 'meters',
@@ -112,8 +115,6 @@ var measureControl = L.control.measure(options);
 measureControl.addTo(map);
 
 
-
-
-    </script>
+    </script>      
 </body>
 </html>
