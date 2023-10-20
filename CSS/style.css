@@ -26,6 +26,11 @@ h3{
 #Container{
     display: flex;
 }
+.search-container{
+    width: 446px;
+    display: flex;
+    flex-direction: column;
+}
 .search{
     display: flex;
 }
@@ -38,6 +43,9 @@ h3{
     border: none;
     width: 80px;
     height: 30px;
+}
+#markerCoordinates{
+    border: 1px solid black;
 }
 .js-measuretasks{
     display: flex;

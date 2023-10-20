@@ -12,9 +12,12 @@
 </head>
 <body>
   <div id="Container">
-  <div class="search">
+  <div class="search-container">
+    <div class="search">
     <input type="text" id="addressInput" placeholder="Enter an address">
     <button id="searchButton">Search</button>
+  </div>
+    <ul id="markerCoordinates"></ul>
   </div>
 
   <div id="map"></div>
@@ -23,7 +26,6 @@
     var apiKey = "D69F8AC4-ADF1-3BBE-A4EF-7C328987345D";
     var apiDomain = "http://127.0.0.1:5500/HTML/index.html";
 
-    // 맵 기본 세팅
     var map = L.map('map', {
       "center": [37.5759999, 126.890612],
       "zoom": 7,
@@ -38,14 +40,12 @@
     var bounds = L.latLngBounds(southWest, northEast);
     map.setMaxBounds(bounds);
 
-    // OpenStreet 지도
     var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     });
 
     osmLayer.addTo(map);
 
-    // V_World 지도
     var vworldLayer = L.tileLayer('https://xdworld.vworld.kr/2d/Base/service/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="http://www.vworld.kr/">vworld</a>  contributors'
     });
@@ -54,11 +54,10 @@
       attribution: '&copy; <a href="https://developers.google.com/maps?hl=ko/">vworld</a>  contributors'
     });
 
-
     var baseMaps = {
       "OpenStreetMap": osmLayer,
       "V_World": vworldLayer,
-      "GoogleMap" : googleLayer
+      "GoogleMap": googleLayer
     };
 
     var cadastral = L.tileLayer.wms("http://api.vworld.kr/req/wms", {
@@ -84,17 +83,12 @@
       };
 
       var userLocationMarker = L.marker([target.latitude, target.longitude]).bindPopup("위도: " + target.latitude + " 경도: " + target.longitude);
-      userLocationMarker.addTo(markerLayer)
+      userLocationMarker.addTo(markerLayer);
 
       var overlayMaps = {
         "cadastral": cadastral,
         "maker": markerLayer
       };
-
-      // 더블클릭시 현재 내 위치로 확대 이벤트
-      markerLayer.on('click', function(e){
-        map.setView([target.latitude, target.longitude],18)
-      })
 
       L.control.layers(baseMaps, overlayMaps, {
         collapsed: false
@@ -120,22 +114,13 @@
     var measureControl = L.control.measure(options);
     measureControl.addTo(map);
 
-    // 주소 검색 버튼 클릭 시 이벤트 처리
-    document.getElementById('searchButton').addEventListener('click', function() {
-      var address = document.getElementById('addressInput').value;
-
-      // 여기에 주소를 좌표로 변환하고 그 좌표로 맵을 이동하는 코드를 추가해야 합니다.
-      // 예를 들어, Mapbox Geocoding을 사용할 경우:
-      L.Control.Geocoder.mapbox('YOUR_MAPBOX_ACCESS_TOKEN').geocode(address, function(results) {
-        if (results.length > 0) {
-          var latlng = results[0].center;
-          map.setView(latlng, 16);
-          L.marker(latlng).addTo(map);
-        } else {
-          alert('주소를 찾을 수 없습니다.');
-        }
-      });
+    // 클릭한 위치의 경도와 위도를 화면에 표시
+    map.on('click', function (e) {
+      var clickedCoordinatesDiv = document.getElementById('markerCoordinates');
+      var coordinates = "클릭한 위치: 위도 " + e.latlng.lat + ", 경도 " + e.latlng.lng;
+      clickedCoordinatesDiv.innerHTML += '<ul>' + coordinates;
     });
+
   </script>
 </body>
 </html>
